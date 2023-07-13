@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './App.css'
-import { Container, Typography } from '@mui/material'
+import { Button, Container, Typography } from '@mui/material'
 import confetti from 'canvas-confetti'
 import { Square } from './components/Square'
 
@@ -151,6 +151,7 @@ function App () {
           'The word was ' + selectedWord.join('')
         }
         </Typography>
+        <Button variant='contained'>Restart game</Button>
       </Container>
 
     </>
