@@ -1,17 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import { Button, Container, Typography } from '@mui/material'
 import confetti from 'canvas-confetti'
 import { Square } from './components/Square'
-
-async function fetchWord () {
-  const response = await fetch('https://random-word-api.vercel.app/api?words=1')
-  const data = await response.json()
-  return data[0]
-}
-
-const selectedWord = Array.from(await fetchWord())
-const wordToGuess = new Set(Array.from(selectedWord))
+// Create alphabet
 const alphabet = [
   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
   'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
@@ -19,38 +11,81 @@ const alphabet = [
 ]
 
 function App () {
-  const [word, setWord] = useState(Array(selectedWord.length).fill(''))
-  const [winner, setWinner] = useState(false)
-  const [lifes, setLifes] = useState(6)
+  // Create initial states
+  const [blank, setBlank] = useState([])
+  const [letters, setLetters] = useState(new Set())
   const [lettersUsed, setLettersUsed] = useState([])
+  const [winner, setWinner] = useState(null)
+  const [word, setWord] = useState([])
+  const [lifes, setLifes] = useState(5)
+  // function to fetch words
+  const fetchWord = async () => {
+    const response = await fetch('https://random-word-api.vercel.app/api?words=1')
+    const data = await response.json()
+    return data[0]
+  }
+  // function to get and set the word from fetch
+  const getWord = async () => {
+    const fetchedWord = await fetchWord()
+    setBlank(Array.from(fetchedWord).fill(''))
+    setWord(Array.from(fetchedWord))
+    setLetters(new Set(Array.from(fetchedWord)))
+  }
+  // useEffect executes when components are rendered
+  useEffect(() => {
+    getWord()
+  }, [])
 
+  // Execution after a letter of the alphabet was clicked
   const handleClick = (e) => {
-    if (winner || lifes === 0) { return }
-    const newLettersUsed = [...lettersUsed]
+    // If there is a winner or we have no lifes we do nothing
+    if (lifes === 0 || winner) { return }
+    // Get the lleter and lower case it
     const letter = e.target.innerText.toLowerCase()
-    newLettersUsed.push(letter)
-    setLettersUsed(newLettersUsed)
+    // Disable de button
     e.target.disabled = true
-    if (wordToGuess.has(letter)) {
-      const newWord = [...word]
-      for (let i = 0; i < selectedWord.length; i++) {
-        if (selectedWord[i] === letter) {
-          newWord[i] = letter
+    const newLetterUsed = [...lettersUsed]
+    // Change the array of used letters with the copy
+    newLetterUsed.push(letter)
+    setLettersUsed(newLetterUsed)
+    // If the letter clicked is in the Set
+    if (letters.has(letter)) {
+      // Delete the letter from the set
+      letters.delete(letter)
+      // Reveal every letter that is equal to the input
+      for (let i = 0; i < word.length; i++) {
+        // Comparison input/word
+        if (letter === word[i]) {
+          // Blank space takes the value of the letter
+          blank[i] = letter
         }
       }
-      setWord(newWord)
-      wordToGuess.delete(letter)
     } else {
-      if (lifes !== 0 && !winner) {
-        setLifes(lifes - 1)
-        if (lifes === 0) { setWinner(false) }
+      // If the letter is not in the set then substract -1 life
+      setLifes(lifes - 1)
+      console.log('Wrong')
+      // If out of lifes then winners is false
+      if (lifes === 0) {
+        setWinner(false)
       }
     }
-    if (wordToGuess.size === 0) {
+    // If the set is empty that means you guessed every letter, you win
+    if (letters.size === 0) {
       setWinner(true)
       confetti()
     }
-    if (winner) { confetti() }
+  }
+
+  const handleRestart = async () => {
+    // Restart every state
+    setBlank([])
+    setLetters(new Set())
+    setLettersUsed([])
+    setWinner(null)
+    setWord([])
+    setLifes(5)
+    // getWord will reset the state of the word, the blanks and the letters
+    await getWord()
   }
   return (
     <>
@@ -82,7 +117,7 @@ function App () {
           }}
         >
           {
-            word.map((char, index) => {
+            blank.map((char, index) => {
               return (
                 <div
                   style={{
@@ -115,7 +150,7 @@ function App () {
           {
             alphabet.map(char => {
               return (
-                <Square key={char} handleClick={handleClick} background={word.includes(char) ? '#21D19F' : !word.includes(char) && lettersUsed.includes(char) ? 'red' : '#000103'}>{char}</Square>
+                <Square key={char} handleClick={handleClick} background={blank.includes(char) ? '#21D19F' : !blank.includes(char) && lettersUsed.includes(char) ? 'red' : '#000103'}>{char}</Square>
               )
             })
           }
@@ -148,10 +183,10 @@ function App () {
         >
           {
           lifes === 0 &&
-          'The word was ' + selectedWord.join('')
-        }
+          'The word was ' + word.join('')
+          }
         </Typography>
-        <Button variant='contained'>Restart game</Button>
+        <Button variant='contained' onClick={handleRestart}>Restart game</Button>
       </Container>
 
     </>
