@@ -42,8 +42,8 @@ function App () {
     if (lifes === 0 || winner) { return }
     // Get the lleter and lower case it
     const letter = e.target.innerText.toLowerCase()
-    // Disable de button
-    e.target.disabled = true
+    // Disable the button
+    // e.target.disabled = true
     const newLetterUsed = [...lettersUsed]
     // Change the array of used letters with the copy
     newLetterUsed.push(letter)
@@ -142,7 +142,7 @@ function App () {
         <Container
           sx={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridTemplateColumns: 'repeat(8, 1fr)',
             placeContent: 'center',
             mt: 2
           }}
@@ -150,7 +150,7 @@ function App () {
           {
             alphabet.map(char => {
               return (
-                <Square key={char} handleClick={handleClick} background={blank.includes(char) ? '#21D19F' : !blank.includes(char) && lettersUsed.includes(char) ? 'red' : '#000103'}>{char}</Square>
+                <Square key={char} handleClick={handleClick} background={blank.includes(char) ? '#21D19F' : !blank.includes(char) && lettersUsed.includes(char) ? 'red' : '#000103'} disabled={lettersUsed.includes(char)}>{char}</Square>
               )
             })
           }
@@ -188,7 +188,6 @@ function App () {
         </Typography>
         <Button variant='contained' onClick={handleRestart}>Restart game</Button>
       </Container>
-
     </>
   )
 }

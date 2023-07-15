@@ -1,20 +1,26 @@
 import { Button } from '@mui/material'
 
-export function Square ({ children, handleClick, background }) {
+export function Square ({ children, handleClick, background, disabled }) {
   return (
     <Button
       variant='contained'
+      disabled={disabled}
       onClick={handleClick}
       sx={{
         margin: 2,
-        backgroundColor: background,
-        display: 'flex',
         fontSize: 24,
+        backgroundColor: background,
+        color: 'white',
         '&:hover': {
           backgroundColor: background
+        },
+        '&.Mui-disabled': {
+          backgroundColor: background,
+          color: 'white'
         }
       }}
-    >{children}
+    >
+      {children}
     </Button>
   )
 }
