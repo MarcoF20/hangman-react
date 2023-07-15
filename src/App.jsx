@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { Button, Container, Typography } from '@mui/material'
+import { Button, Container, Grid, Typography } from '@mui/material'
 import confetti from 'canvas-confetti'
 import { Square } from './components/Square'
 // Create alphabet
@@ -139,22 +139,17 @@ function App () {
             })
           }
         </Container>
-        <Container
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(8, 1fr)',
-            placeContent: 'center',
-            mt: 2
-          }}
-        >
+        <Grid container>
           {
             alphabet.map(char => {
               return (
-                <Square key={char} handleClick={handleClick} background={blank.includes(char) ? '#21D19F' : !blank.includes(char) && lettersUsed.includes(char) ? 'red' : '#000103'} disabled={lettersUsed.includes(char)}>{char}</Square>
+                <Grid item xs={3} sm={2} md={1} key={char}>
+                  <Square handleClick={handleClick} background={blank.includes(char) ? '#21D19F' : !blank.includes(char) && lettersUsed.includes(char) ? 'red' : '#000103'} disabled={lettersUsed.includes(char)}>{char}</Square>
+                </Grid>
               )
             })
           }
-        </Container>
+        </Grid>
         <Typography
           variant='h1'
           sx={{
